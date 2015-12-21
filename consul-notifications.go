@@ -1,13 +1,11 @@
-package main
+package consulnotifications
 
 import (
 	"os"
 	"os/signal"
 	"github.com/dpires/consul-leader-election"
-	"github.com/dpires/consul-leader-election/client"
 	"github.com/dpires/consul-notifications/monitors"
 	log "github.com/Sirupsen/logrus"
-	"github.com/hashicorp/consul/api"
 )
 
 type ConsulNotifications struct {
@@ -31,25 +29,3 @@ func (cn *ConsulNotifications) Start() {
 	}
 }
 
-func main() {
-	config := api.DefaultConfig()
-	consulClient, _ := api.NewClient(config)
-
-        consulInterface := &client.ConsulClient{
-                Client: consulClient,
-        }
-
-	leaderElection := &election.LeaderElection{
-		StopElection:  make(chan bool),
-		LeaderKey:     "service/consul-notifications/leader",
-		WatchWaitTime: 3,
-                Client: consulInterface,
-	}
-
-        app := &ConsulNotifications{
-            ConsulClient: consulInterface,
-            Leader: leaderElection,
-        } 
-
-        app.Start()
-}
