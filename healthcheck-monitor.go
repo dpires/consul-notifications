@@ -1,4 +1,4 @@
-package monitors
+package consulnotifications 
 
 import (
 	log "github.com/Sirupsen/logrus"
