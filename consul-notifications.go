@@ -17,7 +17,7 @@ func (cn *ConsulNotifications) Start() {
 
 	go cn.Leader.ElectLeader()
 
-	mon := monitors.StartMonitor(make(chan bool), cn.Leader)
+	mon := monitors.StartMonitor(make(chan bool), cn.Leader, &cn.ConsulClient)
 
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, os.Interrupt, os.Kill)

@@ -9,6 +9,7 @@ import (
 type HealthCheckMonitor struct {
 	StopMonitorChannel chan bool
 	Candidate          *election.LeaderElection
+        Client *election.ConsulInterface
 }
 
 func (monitor *HealthCheckMonitor) StartMonitor() {
@@ -29,10 +30,11 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 	}
 }
 
-func StartMonitor(channel chan bool, candidate *election.LeaderElection) *HealthCheckMonitor {
+func StartMonitor(channel chan bool, candidate *election.LeaderElection, client *election.ConsulInterface) *HealthCheckMonitor {
 	mon := &HealthCheckMonitor{
 		StopMonitorChannel: channel,
 		Candidate:          candidate,
+                Client: client,
 	}
 	go mon.StartMonitor()
 	return mon
