@@ -1,15 +1,16 @@
-package consulnotifications 
+package consulnotifications
 
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/dpires/consul-leader-election"
+	"github.com/hashicorp/consul/api"
 	"time"
 )
 
 type HealthCheckMonitor struct {
 	StopMonitorChannel chan bool
 	Candidate          *election.LeaderElection
-        Client *election.ConsulInterface
+	Client             *election.ConsulInterface
 }
 
 func (monitor *HealthCheckMonitor) StartMonitor() {
@@ -22,6 +23,22 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 		default:
 			if monitor.Candidate.IsLeader() {
 				log.Info("Checking healthchecks")
+				options := &api.QueryOptions{WaitTime: time.Duration(monitor.Candidate.WatchWaitTime), WaitIndex: 0}
+				healthchecks, err := monitor.Client.GetHealthChecks("any", options)
+
+				if err != nil {
+					log.Error(err)
+				}
+
+				for _, check := range healthchecks {
+					switch check.Status {
+					case "passing":
+					case "warning":
+						log.Warnf("%s %s", check.Name, check.Status, check.Notes)
+					case "critical":
+						log.Errorf("%s %s", check.Name, check.Status, check.Notes)
+					}
+				}
 			} else {
 				log.Info("Not Leader, returning")
 			}
@@ -34,7 +51,7 @@ func StartMonitor(channel chan bool, candidate *election.LeaderElection, client 
 	mon := &HealthCheckMonitor{
 		StopMonitorChannel: channel,
 		Candidate:          candidate,
-                Client: client,
+		Client:             client,
 	}
 	go mon.StartMonitor()
 	return mon
