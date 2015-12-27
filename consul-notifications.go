@@ -1,15 +1,15 @@
 package consulnotifications
 
 import (
+	log "github.com/Sirupsen/logrus"
+	"github.com/dpires/consul-leader-election"
 	"os"
 	"os/signal"
-	"github.com/dpires/consul-leader-election"
-	log "github.com/Sirupsen/logrus"
 )
 
 type ConsulNotifications struct {
-    ConsulClient election.ConsulInterface
-    Leader *election.LeaderElection
+	ConsulClient election.ConsulInterface
+	Leader       *election.LeaderElection
 }
 
 func (cn *ConsulNotifications) Start() {
@@ -27,4 +27,3 @@ func (cn *ConsulNotifications) Start() {
 		log.Info("Exiting Consul Notifications")
 	}
 }
-
