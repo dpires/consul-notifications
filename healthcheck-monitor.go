@@ -33,9 +33,7 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 				for _, check := range healthchecks {
 					switch check.Status {
 					case "passing":
-					case "warning":
-						log.Warnf("%s %s", check.Name, check.Status, check.Notes)
-					case "critical":
+					case "warning", "critical":
 						log.Errorf("%s %s", check.Name, check.Status, check.Notes)
 					}
 				}
