@@ -34,6 +34,7 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 					switch check.Status {
 					case "warning", "critical":
 						log.Errorf("%s %s", check.Name, check.Status, check.Notes)
+                                                // notification := NewNotification(check.Name, check.Status, check.Notes)
 					}
 				}
 			} else {
