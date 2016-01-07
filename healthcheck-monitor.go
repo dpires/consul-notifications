@@ -36,13 +36,12 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 						log.Errorf("%s %s", check.Name, check.Status, check.Notes)
 						// key := fmt.Sprintf("consul-notifications/health-checks/%s/%s/%s", check.Node, check.ServceID, check.CheckID)
 						// aquired, err  = monitor.Client.AquireKey(key, nil)
-						if aquired {
+						// if aquired {
 							// check elapsed time, notify if over
 							// notification := NewNotification(check.Name, check.Status, check.Notes)
-						} else {
+						// } else {
 							// store with time
-						}
-
+						// }
 					}
 				}
 			} else {
