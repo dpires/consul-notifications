@@ -5,6 +5,7 @@ import (
 	"github.com/dpires/consul-leader-election"
 	"github.com/hashicorp/consul/api"
 	"time"
+        "fmt"
 )
 
 type HealthCheckMonitor struct {
@@ -33,15 +34,25 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 				for _, check := range healthchecks {
 					switch check.Status {
 					case "warning", "critical":
-						log.Errorf("%s %s", check.Name, check.Status, check.Notes)
-						// key := fmt.Sprintf("consul-notifications/health-checks/%s/%s/%s", check.Node, check.ServceID, check.CheckID)
-						// aquired, err  = monitor.Client.AquireKey(key, nil)
-						// if aquired {
-							// check elapsed time, notify if over
-							// notification := NewNotification(check.Name, check.Status, check.Notes)
-						// } else {
-							// store with time
-						// }
+						log.Errorf("%s %s %s", check.Name, check.Status, check.Notes)
+                                                if check.ServiceID == "" {
+                                                    check.ServiceID = "no-service"
+                                                }
+						key := fmt.Sprintf("consul-notifications/health-checks/%s/%s/%s", check.Node, check.ServiceID, check.CheckID)
+                                                log.Info(key)
+						aquired, err  := monitor.Client.GetKey(key)
+                                                if err != nil {
+                                                    log.Error(err)
+                                                }
+
+						if aquired != nil {
+                                                    log.Infof("Aquired Key %s:", key)
+                                                    // check elapsed time, notify if over
+                                                    // notification := NewNotification(check.Name, check.Status, check.Notes)
+						} else {
+                                                    log.Infof("Key not aquired, aquiring...")
+                                                    // store with time
+						}
 					}
 				}
 			} else {
