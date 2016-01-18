@@ -51,12 +51,12 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 							// notification := NewNotification(check.Name, check.Status, check.Notes)
 						} else {
 							log.Infof("Key not aquired, aquiring...")
-                                                        value := []byte("test")
-                                                        kv := &api.KVPair{Key: key,Value: value}
-                                                        err = monitor.Client.PutKey(kv)
-                                                        if err != nil {
-                                                            log.Error(err)
-                                                        }
+							value := []byte("test")
+							kv := &api.KVPair{Key: key, Value: value}
+							err = monitor.Client.PutKey(kv)
+							if err != nil {
+								log.Error(err)
+							}
 						}
 					}
 				}
