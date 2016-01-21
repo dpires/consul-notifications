@@ -47,11 +47,23 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 
 						if aquired != nil {
 							log.Infof("Aquired Key %s:", key)
+							checkTime := string(aquired.Value)
+							log.Infof("stored time=%s", checkTime)
+							timeVal, _ := time.Parse(time.UnixDate, checkTime)
+
+							duration, _ := time.ParseDuration("10s")
 							// check elapsed time, notify if over
-							// notification := NewNotification(check.Name, check.Status, check.Notes)
+							if time.Since(timeVal) >= duration {
+								// notification := NewNotification(check.Name, check.Status, check.Notes)
+								log.Info("SENDING ALERT")
+							}
+
 						} else {
 							log.Infof("Key not aquired, aquiring...")
-							value := []byte("test")
+							t := time.Now()
+							ee := t.Format(time.UnixDate)
+							value := []byte(ee)
+							log.Infof("Storing time = %s", ee)
 							kv := &api.KVPair{Key: key, Value: value}
 							err = monitor.Client.PutKey(kv)
 							if err != nil {
