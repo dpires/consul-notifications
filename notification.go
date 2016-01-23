@@ -13,6 +13,6 @@ type Notification struct {
 }
 
 func NewNotification(id string, status string, body string) *Notification {
-	notification := &Notification{Id: id, Status: status, Body: body, Created: time.Now()}
+	notification := &Notification{Id: id, Status: status, Body: body, Created: time.Now(), Sent: false}
 	return notification
 }

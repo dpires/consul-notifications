@@ -1,6 +1,7 @@
 package consulnotifications
 
 import (
+	"encoding/json"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/dpires/consul-leader-election"
@@ -47,23 +48,19 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 
 						if aquired != nil {
 							log.Infof("Aquired Key %s:", key)
-							checkTime := string(aquired.Value)
+							not := Notification{}
+							json.Unmarshal(aquired.Value, &not)
+							checkTime := not.Created
 							log.Infof("stored time=%s", checkTime)
-							timeVal, _ := time.Parse(time.UnixDate, checkTime)
-
 							duration, _ := time.ParseDuration("10s")
 							// check elapsed time, notify if over
-							if time.Since(timeVal) >= duration {
-								// notification := NewNotification(check.Name, check.Status, check.Notes)
+							if time.Since(checkTime) >= duration {
 								log.Info("SENDING ALERT")
 							}
 
 						} else {
 							log.Infof("Key not aquired, aquiring...")
-							t := time.Now()
-							ee := t.Format(time.UnixDate)
-							value := []byte(ee)
-							log.Infof("Storing time = %s", ee)
+							value, _ := json.Marshal(NewNotification("test", "test", "test"))
 							kv := &api.KVPair{Key: key, Value: value}
 							err = monitor.Client.PutKey(kv)
 							if err != nil {
