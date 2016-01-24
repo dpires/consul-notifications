@@ -52,10 +52,21 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 							json.Unmarshal(aquired.Value, &not)
 							checkTime := not.Created
 							log.Infof("stored time=%s", checkTime)
-							duration, _ := time.ParseDuration("10s")
+							duration, _ := time.ParseDuration("5s")
 							// check elapsed time, notify if over
 							if time.Since(checkTime) >= duration {
-								log.Info("SENDING ALERT")
+								if not.Sent == false {
+									log.Info("SENDING ALERT")
+								} else {
+									log.Infof("alert status = %b", not.Sent)
+								}
+								not.Sent = true
+								newVal, _ := json.Marshal(not)
+								kv := &api.KVPair{Key: key, Value: newVal}
+								err = monitor.Client.PutKey(kv)
+								if err != nil {
+									log.Error(err)
+								}
 							}
 
 						} else {
