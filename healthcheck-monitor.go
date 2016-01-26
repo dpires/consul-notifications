@@ -15,6 +15,15 @@ type HealthCheckMonitor struct {
 	Client             election.ConsulInterface
 }
 
+func (monitor *HealthCheckMonitor) IsPassedTimeWindow(notification *Notification, window string) bool {
+	checkTime := notification.Created
+	duration, _ := time.ParseDuration(window)
+	if time.Since(checkTime) >= duration {
+		return true
+	}
+	return false
+}
+
 func (monitor *HealthCheckMonitor) StartMonitor() {
 	stop := false
 	for !stop {
@@ -47,14 +56,9 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 						}
 
 						if aquired != nil {
-							log.Infof("Aquired Key %s:", key)
 							not := Notification{}
 							json.Unmarshal(aquired.Value, &not)
-							checkTime := not.Created
-							log.Infof("stored time=%s", checkTime)
-							duration, _ := time.ParseDuration("5s")
-							// check elapsed time, notify if over
-							if time.Since(checkTime) >= duration {
+							if monitor.IsPassedTimeWindow(&not, "5s") {
 								if not.Sent == false {
 									log.Info("SENDING ALERT")
 								} else {
