@@ -24,6 +24,13 @@ func (monitor *HealthCheckMonitor) IsPassedTimeWindow(notification *Notification
 	return false
 }
 
+func (monitor *HealthCheckMonitor) StoreNotification(notification *Notification) error {
+	value, _ := json.Marshal(notification)
+	kv := &api.KVPair{Key: notification.Id, Value: value}
+	err := monitor.Client.PutKey(kv)
+	return err
+}
+
 func (monitor *HealthCheckMonitor) StartMonitor() {
 	stop := false
 	for !stop {
@@ -65,19 +72,15 @@ func (monitor *HealthCheckMonitor) StartMonitor() {
 									log.Infof("alert status = %b", not.Sent)
 								}
 								not.Sent = true
-								newVal, _ := json.Marshal(not)
-								kv := &api.KVPair{Key: key, Value: newVal}
-								err = monitor.Client.PutKey(kv)
+								err = monitor.StoreNotification(&not)
 								if err != nil {
 									log.Error(err)
 								}
 							}
 
 						} else {
-							log.Infof("Key not aquired, aquiring...")
-							value, _ := json.Marshal(NewNotification("test", "test", "test"))
-							kv := &api.KVPair{Key: key, Value: value}
-							err = monitor.Client.PutKey(kv)
+							value := NewNotification(key, "test", "test")
+							err = monitor.StoreNotification(value)
 							if err != nil {
 								log.Error(err)
 							}
